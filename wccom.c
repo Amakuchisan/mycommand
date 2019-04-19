@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-
 #define _GNU_SOURCE
 #include <getopt.h>
 
@@ -56,11 +55,11 @@ int main(int argc, char *argv[]){
 
 static void count_line(int *case_num, char *filename){
 	int c;
+	int buf = ' ';
 	int bytes = 0;
 	int words = 0;
 	int lines = 0;
 	int tab = 0;
-
 	FILE *f;
 
 	f = fopen(filename, "r");
@@ -68,21 +67,26 @@ static void count_line(int *case_num, char *filename){
 		perror(filename);
 		exit(1);
 	}
-
 	while ((c = getc(f)) != EOF) {
-		if (c == '\n') {
-			words++;
-			lines++;
-		}
 		if (c == ' '){
-			words++;
+			if(buf != ' '){
+				words++;
+			}
 		}
-		if (c == '\t'){
+		if (c == '\n') {
+			if (buf != ' ') {
+				words++;
+			}
+			lines++;
+			buf = ' ';
+		} else if (c == '\t') {
 			tab++;
+			buf = ' ';
+		} else {
+			buf = c;
 		}
 		bytes++;
 	}
-
 	fclose(f);
 	if(case_num[0] == 1){
 		fprintf(stdout, "%d ", lines);
